@@ -12,7 +12,20 @@ assistant to provide useful data on recycling areas and hacks. The expected outc
 and map integration and collaborating with telecom providers. 
 
 # Prerequisites
-React Native
+1. React Native version
+2. FastAPI Python version
+3. PostgreSQL
+4. FireBase
+5. Tensorflow.js
+6. Keras
+7. Google Maps API
+8. Pandas
+9. Matplotlib
+10. Amazon S3 (for cloud storage)
+11. M-Pesa API
+12. DialogFlow (for chatbot)
+    
+# Installation Steps
 
 # Assumptions
 
