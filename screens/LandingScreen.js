@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 499, 
+    height: 580, 
     width: '100%',
   },
 });
