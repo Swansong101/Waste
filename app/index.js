@@ -6,18 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function LandingScreen() {
   const router = useRouter();
 
-  const handleRecycleNow = async () => {
-    try {
-      const hasSignedUp = await AsyncStorage.getItem('hasSignedUp');
-      if (hasSignedUp === 'true') {
-        router.push('/home');  // User has signed up
-      } else {
-        router.push('/signup');  // User hasn't signed up
-      }
-    } catch (error) {
-      console.error('Error reading signup status:', error);
-      router.push('/signup'); // fallback
-    }
+  const handleRecycleNow = () => {
+    router.push('/signup/step1');  // Always go to signup step 1
   };
 
   return (
@@ -30,7 +20,7 @@ export default function LandingScreen() {
 
       <View style={styles.textContainer}>
         <Text style={styles.title}>WASTEMART</Text>
-        <Text style={styles.subtitle}>Trash to Treasure – Let’s Build a Better World</Text>
+        <Text style={styles.subtitle}>Trash to Treasure – Let's Build a Better World</Text>
         <TouchableOpacity
           style={styles.button}
           onPress={handleRecycleNow}
@@ -41,7 +31,6 @@ export default function LandingScreen() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

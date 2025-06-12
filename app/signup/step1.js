@@ -101,7 +101,7 @@ export default function Signup() {
                 }
 
                 await AsyncStorage.setItem('hasSignedUp', 'true');
-                router.replace('/home');
+                router.push('/signup/step2'); // hapa ndio routing iko to step2
                 } catch (error) {
                 console.error('Signup failed:', error);
                 }
