@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
 import { Svg, Circle } from 'react-native-svg';
+import { useRouter } from 'expo-router';
+import Navbar from '../components/navbar';
 
 const leaderboard = [
   { name: 'Joan', weight: '3.0 kg', rank: 1, image: require('../assets/images/avatars/joan.png'), badges: ['🥇', '🏅'] },
@@ -12,6 +14,8 @@ const leaderboard = [
 ];
 
 const HomeScreen = () => {
+  const router = useRouter(); 
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Header */}
@@ -63,8 +67,11 @@ const HomeScreen = () => {
           source={require('../assets/images/bar-chart.png')}
           style={styles.barChart}
         />
-        <TouchableOpacity style={styles.historyButton}>
-          <Text style={styles.historyButtonText}>View history</Text>
+        <TouchableOpacity 
+            style={styles.historyButton} 
+            onPress={() => router.push('/history')}
+          >
+            <Text style={styles.historyButtonText}>View history</Text>
         </TouchableOpacity>
       </View>
 
@@ -89,6 +96,7 @@ const HomeScreen = () => {
             </View>
           ))}
         </View>
+        <Navbar />
       </View>
     </ScrollView>
     
@@ -216,6 +224,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
 export default HomeScreen;
-
