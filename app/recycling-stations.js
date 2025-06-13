@@ -53,6 +53,7 @@ const RecyclingStations = () => {
   ]);
 
   const [selectedBin, setSelectedBin] = useState(null);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   // Get marker color based on capacity
   const getMarkerColor = (capacity) => {
@@ -61,6 +62,18 @@ const RecyclingStations = () => {
 
   return (
     <View style={styles.container}>
+      {/* Header with Hamburger Button */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => setMenuVisible(!menuVisible)}>
+          <Image 
+            source={require('../assets/images/hamburger.png')} 
+            style={styles.hamburgerIcon}
+          />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>RECYCLING STATIONS</Text>
+        <View style={{ width: 30 }} /> // Spacer for balance
+      </View>
+
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Text style={styles.searchText}>Search here</Text>
@@ -109,53 +122,55 @@ const RecyclingStations = () => {
       )}
 
       {/* Hamburger Menu */}
-      <View style={styles.hamburgerMenu}>
-        <Link href="/profile" asChild>
-          <TouchableOpacity style={styles.menuItem}>
-            <Image 
-              source={require('../assets/images/navbar/profile.png')} 
-              style={styles.menuIcon} 
-            />
-            <Text>Profile</Text>
-          </TouchableOpacity>
-        </Link>
-        <Link href="/news" asChild>
-          <TouchableOpacity style={styles.menuItem}>
-            <Image 
-              source={require('../assets/images/navbar/news.png')} 
-              style={styles.menuIcon} 
-            />
-            <Text>News</Text>
-          </TouchableOpacity>
-        </Link>
-        <Link href="/scanner" asChild>
-          <TouchableOpacity style={styles.menuItem}>
-            <Image 
-              source={require('../assets/images/navbar/scanner.png')} 
-              style={styles.menuIcon} 
-            />
-            <Text>Scan</Text>
-          </TouchableOpacity>
-        </Link>
-        <Link href="/recycling-stations" asChild>
-          <TouchableOpacity style={styles.menuItem}>
-            <Image 
-              source={require('../assets/images/navbar/recyclingStations.png')} 
-              style={styles.menuIcon} 
-            />
-            <Text>Recycling Stations</Text>
-          </TouchableOpacity>
-        </Link>
-        <Link href="/history" asChild>
-          <TouchableOpacity style={styles.menuItem}>
-            <Image 
-              source={require('../assets/images/navbar/history.png')} 
-              style={styles.menuIcon} 
-            />
-            <Text>Cash</Text>
-          </TouchableOpacity>
-        </Link>
-      </View>
+      {menuVisible && (
+        <View style={styles.hamburgerMenu}>
+          <Link href="/profile" asChild>
+            <TouchableOpacity style={styles.menuItem} onPress={() => setMenuVisible(false)}>
+              <Image 
+                source={require('../assets/images/navbar/profile.png')} 
+                style={styles.menuIcon} 
+              />
+              <Text>Profile</Text>
+            </TouchableOpacity>
+          </Link>
+          <Link href="/news" asChild>
+            <TouchableOpacity style={styles.menuItem} onPress={() => setMenuVisible(false)}>
+              <Image 
+                source={require('../assets/images/navbar/news.png')} 
+                style={styles.menuIcon} 
+              />
+              <Text>News</Text>
+            </TouchableOpacity>
+          </Link>
+          <Link href="/scanner" asChild>
+            <TouchableOpacity style={styles.menuItem} onPress={() => setMenuVisible(false)}>
+              <Image 
+                source={require('../assets/images/navbar/scanner.png')} 
+                style={styles.menuIcon} 
+              />
+              <Text>Scan</Text>
+            </TouchableOpacity>
+          </Link>
+          <Link href="/recycling-stations" asChild>
+            <TouchableOpacity style={styles.menuItem} onPress={() => setMenuVisible(false)}>
+              <Image 
+                source={require('../assets/images/navbar/recyclingStations.png')} 
+                style={styles.menuIcon} 
+              />
+              <Text>Recycling Stations</Text>
+            </TouchableOpacity>
+          </Link>
+          <Link href="/history" asChild>
+            <TouchableOpacity style={styles.menuItem} onPress={() => setMenuVisible(false)}>
+              <Image 
+                source={require('../assets/images/navbar/history.png')} 
+                style={styles.menuIcon} 
+              />
+              <Text>Cash</Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
+      )}
     </View>
   );
 };
@@ -163,6 +178,23 @@ const RecyclingStations = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  hamburgerIcon: {
+    width: 24,
+    height: 24,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   searchContainer: {
     padding: 15,
@@ -204,12 +236,13 @@ const styles = StyleSheet.create({
   },
   hamburgerMenu: {
     position: 'absolute',
-    top: 60,
-    right: 10,
+    top: 80,
+    left: 10,
     backgroundColor: 'white',
     borderRadius: 10,
     elevation: 5,
     padding: 10,
+    zIndex: 1000,
   },
   menuItem: {
     flexDirection: 'row',

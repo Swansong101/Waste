@@ -59,9 +59,9 @@ export default function History() {
             </View>
           ))}
         </View>
-        
+        <View style={{ height: 50 }} />
+        <Navbar />
       </ScrollView>
-      <Navbar />
     </View>
   );
 }

@@ -88,7 +88,7 @@ export default function NewsPage() {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={{ height: 80 }} />
+      <View style={{ height: 230 }} />
 
       <Navbar />
     </ScrollView>

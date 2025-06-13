@@ -91,9 +91,10 @@ export default function Profile() {
           <Text style={styles.saveButtonText}>SAVE</Text>
         </TouchableOpacity>
       </View>
-
+      <View style={{ height: 70 }} />
       {/* Navbar */}
       <Navbar />
+      
     </ScrollView>
   );
 }
