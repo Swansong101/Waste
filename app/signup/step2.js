@@ -1,115 +1,106 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
+import { auth, db } from "../../lib/firebase";
 
 export default function SignupStep2() {
   const router = useRouter();
+  const params = useLocalSearchParams();
 
   const [form, setForm] = useState({
-    password: '',
-    confirmPassword: '',
-    profileImage: '',
+    password: "",
+    confirmPassword: "",
+    profileImage: "",
   });
-
-  const [pledgeRecycle, setPledgeRecycle] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (field, value) => {
     setForm({ ...form, [field]: value });
   };
 
-  const handleImagePicker = () => {
-    // Placeholder for image picker functionality
-    Alert.alert('Image Picker', 'Image picker functionality would be implemented here');
-  };
-
   const handleContinue = async () => {
     try {
-      // Validate required fields
       if (!form.password || !form.confirmPassword) {
-        Alert.alert('Error', 'Please fill all required fields');
+        Alert.alert("Error", "Please fill all required fields");
         return;
       }
-
-      // Validate password match
       if (form.password !== form.confirmPassword) {
-        Alert.alert('Error', 'Passwords do not match');
+        Alert.alert("Error", "Passwords do not match");
         return;
       }
-
-      // Save signup completion state
-      await AsyncStorage.setItem('signupCompleted', 'true');
-      
-      // Navigate to home page
-      router.replace('/home'); // Replaces current route so they can't go back
+      setLoading(true);
+      // Use email if provided, otherwise fallback to phone as email
+      const email =
+        params.email || `${params.phone.replace(/[^\d]/g, "")}@wasteapp.com`;
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        form.password
+      );
+      const user = userCredential.user;
+      // Store user profile in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        fullName: params.fullName,
+        age: params.age,
+        email: params.email || "",
+        phone: params.phone,
+        residence: params.residence,
+        profileImage: form.profileImage,
+        pledgeRecycle: false, // Default to false
+        createdAt: new Date().toISOString(),
+      });
+      setLoading(false);
+      router.replace("/home");
     } catch (error) {
-      console.error('Signup step 2 failed:', error);
-      Alert.alert('Error', 'Something went wrong. Please try again.');
+      setLoading(false);
+      Alert.alert("Signup failed", error.message);
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>We are glad to have you!</Text>
-      <Text style={styles.subtitle}>Fill in this form to get started</Text>
-      <Text style={styles.helper}>Let's build a better world</Text>
-
-      {/* Progress Bar */}
-      <View style={styles.progressContainer}>
-        <View style={styles.progressCompleted} />
-        <View style={styles.progressFilled} />
-      </View>
-
-      {/* Form */}
-      <View style={styles.form}>
-        <Text style={styles.label}>Password <Text style={styles.required}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          placeholder=""
-          secureTextEntry
-          value={form.password}
-          onChangeText={(text) => handleChange('password', text)}
-        />
-
-        <Text style={styles.label}>Confirm password <Text style={styles.required}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          placeholder=""
-          secureTextEntry
-          value={form.confirmPassword}
-          onChangeText={(text) => handleChange('confirmPassword', text)}
-        />
-
-        <Text style={styles.label}>Profile image</Text>
-        <TouchableOpacity style={styles.imagePicker} onPress={handleImagePicker}>
-          <Text style={styles.imagePickerText}>Choose Image</Text>
-        </TouchableOpacity>
-        <Text style={styles.optional}>ⓘ Optional</Text>
-
-        {/* Pledge Checkbox */}
-        <TouchableOpacity 
-          style={styles.checkboxContainer} 
-          onPress={() => setPledgeRecycle(!pledgeRecycle)}
-        >
-          <View style={[styles.checkbox, pledgeRecycle && styles.checkboxChecked]}>
-            {pledgeRecycle && <Text style={styles.checkmark}>✓</Text>}
-          </View>
-          <Text style={styles.checkboxText}>I pledge to recycle</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Continue Button */}
+      <Text style={styles.title}>Set your password</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        secureTextEntry
+        value={form.password}
+        onChangeText={(text) => handleChange("password", text)}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Confirm Password"
+        secureTextEntry
+        value={form.confirmPassword}
+        onChangeText={(text) => handleChange("confirmPassword", text)}
+      />
+      {/* Profile image picker and pledge checkbox can go here */}
       <TouchableOpacity
         style={styles.button}
         onPress={handleContinue}
+        disabled={loading}
       >
-        <Text style={styles.buttonText}>Continue</Text>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Continue</Text>
+        )}
       </TouchableOpacity>
-
-      {/* Sign In */}
       <Text style={styles.signinText}>
-        Already have an account?{' '}
-        <Text style={styles.signinLink} onPress={() => router.push('/login')}>Sign in</Text>
+        Already have an account?{" "}
+        <Text style={styles.signinLink} onPress={() => router.push("/login")}>
+          Sign in
+        </Text>
       </Text>
     </ScrollView>
   );
@@ -119,29 +110,29 @@ const styles = StyleSheet.create({
   container: {
     padding: 24,
     paddingTop: 50,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     flexGrow: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   title: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 18,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
     marginBottom: 4,
   },
   helper: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 14,
-    color: '#555',
+    color: "#555",
     marginBottom: 20,
   },
   progressContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 12,
     marginBottom: 20,
   },
@@ -149,20 +140,20 @@ const styles = StyleSheet.create({
     width: 80,
     height: 10,
     borderRadius: 5,
-    backgroundColor: 'limegreen',
+    backgroundColor: "limegreen",
   },
   progressFilled: {
     width: 80,
     height: 10,
     borderRadius: 5,
-    backgroundColor: 'limegreen',
+    backgroundColor: "limegreen",
   },
   form: {
-    width: '100%',
-    backgroundColor: '#fff',
+    width: "100%",
+    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
@@ -171,38 +162,38 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     marginTop: 12,
   },
   required: {
-    color: 'red',
+    color: "red",
   },
   optional: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
     marginTop: 4,
     marginBottom: 16,
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     padding: 12,
     borderRadius: 12,
     marginTop: 6,
   },
   imagePicker: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     padding: 12,
     borderRadius: 12,
     marginTop: 6,
-    alignItems: 'center',
+    alignItems: "center",
   },
   imagePickerText: {
-    color: '#666',
+    color: "#666",
     fontSize: 14,
   },
   checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 8,
   },
   checkbox: {
@@ -210,44 +201,44 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     marginRight: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   checkboxChecked: {
-    backgroundColor: 'limegreen',
-    borderColor: 'limegreen',
+    backgroundColor: "limegreen",
+    borderColor: "limegreen",
   },
   checkmark: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   checkboxText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
   button: {
-    backgroundColor: 'limegreen',
+    backgroundColor: "limegreen",
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 25,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
     marginBottom: 16,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 16,
   },
   signinText: {
     fontSize: 14,
-    color: '#555',
+    color: "#555",
   },
   signinLink: {
-    color: 'green',
-    fontWeight: '500',
+    color: "green",
+    fontWeight: "500",
   },
 });
